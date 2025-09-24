@@ -20,17 +20,149 @@ npm install countries-codes
 
 ## Usage
 
-```tsx
-import { textSimilarity } from "countries-codes";
+### Basic Usage
 
-const similarity1 = textSimilarity("hello world", "hello", 2); // Default parameters (substring length: 2, case insensitive)
-console.log(similarity1);
+```typescript
+import {
+  continents,
+  countries,
+  languages,
+  getCountryCode,
+  getCountryData,
+  getCountryDataList,
+  getEmojiFlag,
+} from "countries-codes";
 
-const similarity2 = textSimilarity("JavaScript", "javascript", 2, true); // Comparison is case-sensitive and the strings differ in case
-console.log(similarity2);
+// Get country code by name
+const countryCode = getCountryCode("United States"); // "US"
+const countryCodeCaseInsensitive = getCountryCode("germany"); // "DE"
 
-const similarity3 = textSimilarity("apple pie", "apple", 3); // Substring length of 3, ignoring case by default
-console.log(similarity3);
+// Get complete country data
+const usData = getCountryData("US");
+console.log(usData);
+// {
+//   iso2: "US",
+//   iso3: "USA",
+//   name: "United States",
+//   native: "United States",
+//   capital: "Washington D.C.",
+//   continent: "NA",
+//   currency: ["USD"],
+//   languages: ["en"],
+//   phone: [1]
+// }
+
+// Get emoji flag
+const flag = getEmojiFlag("US"); // "🇺🇸"
+const germanFlag = getEmojiFlag("DE"); // "🇩🇪"
+
+// Get all countries data
+const allCountries = getCountryDataList();
+console.log(`Total countries: ${allCountries.length}`);
+
+// Access raw data
+console.log(continents.NA); // "North America"
+console.log(countries.US.name); // "United States"
+console.log(languages.en.name); // "English"
+```
+
+### Advanced Usage
+
+```typescript
+import {
+  getCountryDataList,
+  getCountryCode,
+  getEmojiFlag,
+} from "countries-codes";
+
+// Find countries by continent
+const allCountries = getCountryDataList();
+const europeanCountries = allCountries.filter(
+  (country) => country.continent === "EU",
+);
+
+// Create a country selector with flags
+const countryOptions = allCountries.map((country) => ({
+  value: country.iso2,
+  label: `${getEmojiFlag(country.iso2)} ${country.name}`,
+  native: country.native,
+}));
+
+// Search functionality
+function searchCountries(query: string) {
+  return allCountries.filter(
+    (country) =>
+      country.name.toLowerCase().includes(query.toLowerCase()) ||
+      country.native.toLowerCase().includes(query.toLowerCase()),
+  );
+}
+
+// Get country by phone code
+function getCountryByPhone(phoneCode: number) {
+  return allCountries.find((country) => country.phone.includes(phoneCode));
+}
+```
+
+## API Reference
+
+### Functions
+
+#### `getCountryCode(countryName: string): TCountryCode | false`
+
+Returns the ISO 3166-1 alpha-2 country code for a given country name (case-insensitive).
+
+#### `getCountryData(iso2: TCountryCode): ICountryData`
+
+Returns complete country data including ISO codes, name, capital, continent, currencies, languages, and phone codes.
+
+#### `getCountryDataList(): ICountryData[]`
+
+Returns an array of all countries with complete data.
+
+#### `getEmojiFlag(countryCode: TCountryCode): string`
+
+Returns the emoji flag for a given ISO 3166-1 alpha-2 country code.
+
+### Data Objects
+
+#### `continents: TContinents`
+
+Object mapping continent codes to continent names.
+
+#### `countries: TCountries`
+
+Object mapping country codes to country data.
+
+#### `languages: TLanguages`
+
+Object mapping language codes to language data.
+
+### TypeScript Types
+
+```typescript
+interface ICountry {
+  capital: string;
+  continent: TContinentCode;
+  continents?: TContinentCode[];
+  currency: string[];
+  languages: TLanguageCode[];
+  name: string;
+  native: string;
+  partOf?: string;
+  phone: number[];
+  userAssigned?: boolean;
+}
+
+interface ICountryData extends ICountry {
+  iso2: TCountryCode;
+  iso3: string;
+}
+
+interface ILanguage {
+  name: string;
+  native: string;
+  rtl?: number;
+}
 ```
 
 ## Countries & Languages: minimal size files
